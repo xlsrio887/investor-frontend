@@ -1,60 +1,40 @@
 import React, { useEffect, useState } from "react";
 
 const Dashboard = () => {
-  const [userData, setUserData] = useState(null);
+  const [data, setData] = useState(null);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        window.location.href = "/login"; // Если нет токена, кидаем на логин
-        return;
-      }
-
-      try {
-        const response = await fetch("https://investor-api.onrender.com/me", {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error("Ошибка запроса");
-        }
-
-        const data = await response.json();
-        setUserData(data);
-      } catch (error) {
-        console.error("Ошибка загрузки данных:", error);
-      }
-    };
-
-    fetchUserData();
+    fetch("https://investor-api.onrender.com/user-data")
+      .then((res) => res.json())
+      .then((data) => setData(data))
+      .catch((err) => console.error("Ошибка при загрузке данных:", err));
   }, []);
 
-  if (!userData) {
-    return <p>Загрузка...</p>;
-  }
-
   return (
-    <div className="container">
-      <h1>Добро пожаловать, {userData.username}</h1>
-      <p>Email: {userData.email}</p>
-      <p>TVL: ${userData.tvl}</p>
-      <p>Баланс: ${userData.balance}</p>
-      <p>Доходность: {userData.yield}%</p>
-      <p>Курс SOL: ${userData.solPrice}</p>
-
-      <h2>Активные пулы</h2>
-      <ul>
-        {userData.pools.map(pool => (
-          <li key={pool.hash}>
-            <strong>{pool.name}</strong>  
-            <p>Хеш пула: {pool.hash}</p>
-            <p>Сумма: ${pool.amount}</p>
-          </li>
-        ))}
-      </ul>
+    <div className="flex items-center justify-center h-screen bg-gray-900 text-white">
+      <div className="bg-gray-800 p-6 rounded-lg w-96">
+        <h2 className="text-xl mb-4">Личный кабинет</h2>
+        {data ? (
+          <div>
+            <p><strong>Email:</strong> {data.email}</p>
+            <p><strong>Баланс:</strong> {data.balance} USDC</p>
+            <p><strong>TVL:</strong> {data.tvl} SOL</p>
+            <p><strong>Доходность:</strong> {data.yield}%</p>
+            <p><strong>Активные пулы:</strong></p>
+            <ul>
+              {data.pools.map((pool, index) => (
+                <li key={index}>
+                  <strong>Пул:</strong> {pool.name} <br />
+                  <strong>Хеш:</strong> {pool.hash} <br />
+                  <strong>Сумма:</strong> {pool.amount} SOL
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <p>Загрузка данных...</p>
+        )}
+      </div>
     </div>
   );
 };
