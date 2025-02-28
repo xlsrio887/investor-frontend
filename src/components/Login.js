@@ -1,31 +1,39 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [privateKey, setPrivateKey] = useState("");
 
-  const handleLogin = async () => {
-    const response = await fetch("https://investor-api.onrender.com/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, privateKey })
-    });
-
-    const data = await response.json();
-    if (response.ok) {
-      localStorage.setItem("token", data.token);
-      window.location.href = "/dashboard";
-    } else {
-      alert(data.message);
+  const handleLogin = () => {
+    if (email && privateKey) {
+      navigate("/dashboard");
     }
   };
 
   return (
-    <div className="container">
-      <h2>Вход</h2>
-      <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
-      <input type="password" placeholder="Приватный ключ" value={privateKey} onChange={e => setPrivateKey(e.target.value)} />
-      <button onClick={handleLogin}>Войти</button>
+    <div className="flex items-center justify-center h-screen bg-gray-900">
+      <div className="bg-gray-800 p-6 rounded-lg">
+        <h2 className="text-white text-xl mb-4">Вход в систему</h2>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="block w-full p-2 mb-2 bg-gray-700 text-white rounded"
+        />
+        <input
+          type="password"
+          placeholder="Приватный ключ"
+          value={privateKey}
+          onChange={(e) => setPrivateKey(e.target.value)}
+          className="block w-full p-2 mb-4 bg-gray-700 text-white rounded"
+        />
+        <button onClick={handleLogin} className="w-full bg-blue-500 text-white py-2 rounded">
+          Войти
+        </button>
+      </div>
     </div>
   );
 };
